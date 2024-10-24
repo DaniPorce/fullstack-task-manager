@@ -1,0 +1,21 @@
+from flask import Flask, request, jsonify
+import jwt
+import datetime
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'secretkey'
+
+@app.route('/login', methods=['POST'])
+def login():
+    auth_data = request.get_json()
+    if auth_data['username'] == 'user' and auth_data['password'] == 'password':
+        token = jwt.encode({
+            'user': auth_data['username'],
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+        }, app.config['SECRET_KEY'])
+        return jsonify({'token': token})
+
+    return jsonify({'message': 'Invalid credentials'}), 401
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
